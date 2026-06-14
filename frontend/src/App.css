@@ -1,0 +1,184 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f4f6f8;
+  color: #111827;
+}
+
+.page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 32px 16px;
+}
+
+.header {
+  margin-bottom: 24px;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 42px;
+}
+
+.header p {
+  margin-top: 8px;
+  color: #6b7280;
+}
+
+.card,
+.summary-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.card label,
+.form label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+input,
+select,
+button {
+  width: 100%;
+  padding: 11px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 15px;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: #111827;
+  color: white;
+  font-weight: bold;
+}
+
+.form {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.form button {
+  grid-column: span 2;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+
+.summary-card h2 {
+  margin-top: 0;
+  font-size: 18px;
+}
+
+.big-number {
+  font-size: 32px;
+  font-weight: bold;
+}
+
+.expense-list {
+  display: grid;
+  gap: 12px;
+}
+
+.expense-card {
+  background: #fafafa;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.expense-card h3 {
+  margin: 0 0 8px;
+}
+
+.expense-card p {
+  margin: 5px 0;
+}
+
+.expense-card small {
+  color: #6b7280;
+}
+
+.expense-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.edit-button {
+  width: auto;
+  background: #2563eb;
+  padding: 10px 14px;
+}
+
+.delete-button {
+  width: auto;
+  background: #b91c1c;
+  padding: 10px 14px;
+}
+
+.cancel-button {
+  background: #6b7280;
+}
+
+.management-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+
+.mini-form {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 16px;
+  display: grid;
+  gap: 10px;
+}
+
+.mini-form h3 {
+  margin: 0 0 6px;
+}
+
+@media (max-width: 700px) {
+  .summary-grid,
+  .form,
+  .management-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form button {
+    grid-column: span 1;
+  }
+
+  .expense-card {
+    flex-direction: column;
+  }
+
+  .expense-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .edit-button,
+  .delete-button {
+    width: 100%;
+  }
+}
