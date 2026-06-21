@@ -27,7 +27,7 @@ app.get("/api/health", (req, res) => {
 });
 
 app.get("/api/expenses", async (req, res) => {
-  const { month } = req.query;
+  const { month, user_id, category_id, subcategory_id } = req.query;
 
   let query = supabase
     .from("expenses")
@@ -53,7 +53,6 @@ app.get("/api/expenses", async (req, res) => {
 
   if (month) {
     const [year, monthNumber] = month.split("-").map(Number);
-
     const startDate = `${month}-01`;
 
     let nextYear = year;
@@ -68,6 +67,18 @@ app.get("/api/expenses", async (req, res) => {
     const endDate = `${nextYear}-${nextMonthString}-01`;
 
     query = query.gte("spent_on", startDate).lt("spent_on", endDate);
+  }
+
+  if (user_id) {
+    query = query.eq("user_id", user_id);
+  }
+
+  if (category_id) {
+    query = query.eq("category_id", category_id);
+  }
+
+  if (subcategory_id) {
+    query = query.eq("subcategory_id", subcategory_id);
   }
 
   const { data, error } = await query;
@@ -461,9 +472,8 @@ app.put("/api/expenses/:id", async (req, res) => {
     expense: data,
   });
 });
-
 app.get("/api/summary", async (req, res) => {
-  const { month } = req.query;
+  const { month, user_id, category_id, subcategory_id } = req.query;
 
   if (!month) {
     return res.status(400).json({
@@ -492,7 +502,7 @@ app.get("/api/summary", async (req, res) => {
   const nextMonthString = String(nextMonth).padStart(2, "0");
   const endDate = `${nextYear}-${nextMonthString}-01`;
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("expenses")
     .select(`
       id,
@@ -514,6 +524,20 @@ app.get("/api/summary", async (req, res) => {
     `)
     .gte("spent_on", startDate)
     .lt("spent_on", endDate);
+
+  if (user_id) {
+    query = query.eq("user_id", user_id);
+  }
+
+  if (category_id) {
+    query = query.eq("category_id", category_id);
+  }
+
+  if (subcategory_id) {
+    query = query.eq("subcategory_id", subcategory_id);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     return res.status(500).json({ error: error.message });

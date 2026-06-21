@@ -18,6 +18,11 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [editingExpenseId, setEditingExpenseId] = useState(null);
 
+  const [filterUserId, setFilterUserId] = useState("");
+  const [filterCategoryId, setFilterCategoryId] = useState("");
+  const [filterSubcategoryId, setFilterSubcategoryId] = useState("");
+  const [filterSubcategories, setFilterSubcategories] = useState([]);
+
   const [newUserName, setNewUserName] = useState("");
   const [newCategoryName, setNewCategoryName] = useState("");
   const [newSubcategoryName, setNewSubcategoryName] = useState("");
@@ -59,14 +64,52 @@ function App() {
     setSubcategories(data);
   }
 
+  async function fetchFilterSubcategories(categoryId) {
+    if (!categoryId) {
+      setFilterSubcategories([]);
+      return;
+    }
+
+    const response = await fetch(
+      `${API_URL}/api/subcategories?category_id=${categoryId}`
+    );
+
+    const data = await response.json();
+    setFilterSubcategories(data);
+  }
+
+  function buildFilterParams() {
+    const params = new URLSearchParams();
+
+    params.append("month", month);
+
+    if (filterUserId) {
+      params.append("user_id", filterUserId);
+    }
+
+    if (filterCategoryId) {
+      params.append("category_id", filterCategoryId);
+    }
+
+    if (filterSubcategoryId) {
+      params.append("subcategory_id", filterSubcategoryId);
+    }
+
+    return params.toString();
+  }
+
   async function fetchExpenses() {
-    const response = await fetch(`${API_URL}/api/expenses?month=${month}`);
+    const response = await fetch(
+      `${API_URL}/api/expenses?${buildFilterParams()}`
+    );
     const data = await response.json();
     setExpenses(data);
   }
 
   async function fetchSummary() {
-    const response = await fetch(`${API_URL}/api/summary?month=${month}`);
+    const response = await fetch(
+      `${API_URL}/api/summary?${buildFilterParams()}`
+    );
     const data = await response.json();
     setSummary(data);
   }
@@ -85,11 +128,16 @@ function App() {
 
   useEffect(() => {
     loadData();
-  }, [month]);
+  }, [month, filterUserId, filterCategoryId, filterSubcategoryId]);
 
   useEffect(() => {
     fetchSubcategories(form.category_id);
   }, [form.category_id]);
+
+  useEffect(() => {
+    fetchFilterSubcategories(filterCategoryId);
+    setFilterSubcategoryId("");
+  }, [filterCategoryId]);
 
   function handleChange(event) {
     const { name, value } = event.target;
@@ -226,9 +274,7 @@ function App() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        name: newUserName,
-      }),
+      body: JSON.stringify({ name: newUserName }),
     });
 
     const data = await response.json();
@@ -255,9 +301,7 @@ function App() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        name: newCategoryName,
-      }),
+      body: JSON.stringify({ name: newCategoryName }),
     });
 
     const data = await response.json();
@@ -307,6 +351,10 @@ function App() {
     if (form.category_id) {
       await fetchSubcategories(form.category_id);
     }
+
+    if (filterCategoryId) {
+      await fetchFilterSubcategories(filterCategoryId);
+    }
   }
 
   return (
@@ -323,6 +371,69 @@ function App() {
           value={month}
           onChange={(event) => setMonth(event.target.value)}
         />
+      </section>
+
+      <section className="card">
+        <h2>Filters</h2>
+
+        <div className="filter-grid">
+          <div>
+            <label>User</label>
+            <select
+              value={filterUserId}
+              onChange={(event) => setFilterUserId(event.target.value)}
+            >
+              <option value="">All Users</option>
+              {users.map((user) => (
+                <option value={user.id} key={user.id}>
+                  {user.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label>Category</label>
+            <select
+              value={filterCategoryId}
+              onChange={(event) => setFilterCategoryId(event.target.value)}
+            >
+              <option value="">All Categories</option>
+              {categories.map((category) => (
+                <option value={category.id} key={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label>Subcategory</label>
+            <select
+              value={filterSubcategoryId}
+              onChange={(event) => setFilterSubcategoryId(event.target.value)}
+            >
+              <option value="">All Subcategories</option>
+              {filterSubcategories.map((subcategory) => (
+                <option value={subcategory.id} key={subcategory.id}>
+                  {subcategory.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <button
+            type="button"
+            className="clear-filters-button"
+            onClick={() => {
+              setFilterUserId("");
+              setFilterCategoryId("");
+              setFilterSubcategoryId("");
+            }}
+          >
+            Clear Filters
+          </button>
+        </div>
       </section>
 
       <section className="card">
@@ -493,6 +604,7 @@ function App() {
           <p className="big-number">
             ${summary ? Number(summary.total).toFixed(2) : "0.00"}
           </p>
+          <p>{summary ? `${summary.expenseCount} expense(s)` : "0 expense(s)"}</p>
         </div>
 
         <div className="summary-card">
@@ -519,7 +631,7 @@ function App() {
       <section className="card">
         <h2>Expenses</h2>
 
-        {expenses.length === 0 && <p>No expenses found for this month.</p>}
+        {expenses.length === 0 && <p>No expenses found for selected filters.</p>}
 
         <div className="expense-list">
           {expenses.map((expense) => (

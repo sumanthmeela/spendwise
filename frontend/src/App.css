@@ -181,4 +181,21 @@ button {
   .delete-button {
     width: 100%;
   }
+
+  .filter-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  align-items: end;
+}
+
+.clear-filters-button {
+  background: #374151;
+}
+
+@media (max-width: 700px) {
+  .filter-grid {
+    grid-template-columns: 1fr;
+  }
+}
 }
